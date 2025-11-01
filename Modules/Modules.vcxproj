@@ -29,6 +29,7 @@
   <ItemGroup>
     <None Include="MW001.asm" />
     <None Include="MW002.asm" />
+    <None Include="MW003.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{48bf6706-ce0f-42b5-9a5c-acca3cfd9fe2}</ProjectGuid>
