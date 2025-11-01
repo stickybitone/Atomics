@@ -16,6 +16,7 @@ GetKernel32ModuleHandle PROC
 	ret
 GetKernel32ModuleHandle ENDP
 
+; RCX - kernel32
 GetAddressOfGetProcAddress PROC
 	test	rcx, rcx
 	jz		@nothing

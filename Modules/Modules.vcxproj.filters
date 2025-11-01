@@ -7,6 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="API.asm" />
+    <None Include="MW001.asm" />
+    <None Include="MW002.asm" />
   </ItemGroup>
 </Project>

@@ -199,7 +199,7 @@ asmVirtualProtect PROC
 	ret
 asmVirtualProtect ENDP
 
-INCLUDE ../Modules/MW001.asm
+INCLUDE ../Modules/MW002.asm
 
 END
 

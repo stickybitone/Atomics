@@ -6,5 +6,5 @@ extern "C" long long __fastcall asmCalculateFunctionHash(const char* funcName); 
 int main()
 {
 	printf("kernel32.dll!VirtualAlloc: 0x%x\n", asmCalculateModuleFunctionHash(L"kernel32.dll", "VirtualAlloc", 26));
-	printf("VirtualAlloc: 0x%x\n", asmCalculateFunctionHash("VirtualAlloc"));
+	printf("GetProcAddress: 0x%x\n", asmCalculateFunctionHash("GetProcAddress"));
 }
