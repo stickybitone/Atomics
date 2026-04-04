@@ -12,4 +12,5 @@ int main()
 	printf("ws2_32.dll!recv: 0x%x\n", asmCalculateModuleFunctionHash(L"ws2_32.dll", "recv", 22));
 	printf("kernel32.dll!VirtualAlloc: 0x%x\n", asmCalculateModuleFunctionHash(L"kernel32.dll", "VirtualAlloc", 26));
 	printf("GetProcAddress: 0x%x\n", asmCalculateFunctionHash("GetProcAddress"));
+	printf("kernel32.dll!WinExec: 0x%x\n", asmCalculateModuleFunctionHash(L"kernel32.dll", "WinExec", 26));
 }
