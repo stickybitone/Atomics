@@ -10,5 +10,6 @@
     <None Include="MW001.asm" />
     <None Include="MW002.asm" />
     <None Include="MW003.asm" />
+    <None Include="MW101.asm" />
   </ItemGroup>
 </Project>
