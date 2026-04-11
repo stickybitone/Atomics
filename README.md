@@ -1,9 +1,3 @@
-* AW - Atomics (Windows)
-* DW - Defence Evasion (Windows)
-* EW - Privilege Escalation (Windows)
-* MW - Modules (Windows)
-* PW - Process Injection (Windows)
-
 -------------------------NOMENCLATURE------------------------
 * 0xx - x86-64
 * 1xx - x86-32
@@ -11,6 +5,12 @@
 * <ATOMIC>.<MODULE>:
   * AW003.1 - AW003 atomic based on the MW001 module
   * AW107.1 - AW107 atomic based on the MW101 module
+  
+* AW - Atomics (Windows)
+* DW - Defence Evasion (Windows)
+* EW - Privilege Escalation (Windows)
+* MW - Modules (Windows)
+* PW - Process Injection (Windows)
 
 ---------------------------ATOMICS---------------------------
 - x64:
@@ -23,18 +23,6 @@
 - x86:
 
   * AW107 - custom windows/exec cmd= in ASM
-
-----------------------PROCESS INJECTION----------------------
-
-
----------------------PRIVILEGE ESCALATION--------------------
-
-
-----------------------PROCESS INJECTION----------------------
-
-
------------------------DEFENCE EVASION-----------------------
-
 
 ---------------------------MODULES---------------------------
 
