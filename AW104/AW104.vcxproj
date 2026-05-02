@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{67a2a321-a643-485f-bff9-c7e9fd6485e8}</ProjectGuid>
-    <RootNamespace>AW107</RootNamespace>
+    <ProjectGuid>{b2e14d79-3fce-4e88-85bc-1e213dffd2a0}</ProjectGuid>
+    <RootNamespace>AW104</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -125,12 +125,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AW107.cpp" />
+    <ClCompile Include="AW104.cpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="x86.asm">
       <FileType>Document</FileType>
-      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</UseSafeExceptionHandlers>
     </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

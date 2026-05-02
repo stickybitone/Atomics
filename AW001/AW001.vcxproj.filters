@@ -23,7 +23,4 @@
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="readme.txt" />
-  </ItemGroup>
 </Project>

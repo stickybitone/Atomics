@@ -2,7 +2,7 @@
 * 0xx - x86-64
 * 1xx - x86-32
 
-* <ATOMIC>.<MODULE>:
+* \<ATOMIC\>.\<MODULE\>:
   * AW003.1 - AW003 atomic based on the MW001 module
   * AW107.1 - AW107 atomic based on the MW101 module
   

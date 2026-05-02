@@ -24,9 +24,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <MASM Include="utils.asm">
       <Filter>Source Files</Filter>
     </MASM>
