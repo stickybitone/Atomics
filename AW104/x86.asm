@@ -84,7 +84,7 @@ loop_funcname:               ;
    pop ebx
 
    
-   ; 63616c63 2e657865 calc.exe
+   ; convertASCIItoHexLE("calc.exe");
    xor ebx, ebx
    push ebx
    mov ebx, 6578652eh   
@@ -97,7 +97,7 @@ loop_funcname:               ;
    push ebx
    call eax
 
-get_next_mod:                ;0078fba4
+get_next_mod:                ;
   pop eax                    ; Pop off the current (now the previous) modules EAT
 get_next_mod1:               ;
   pop edi                    ; Pop off the current (now the previous) modules hash

@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <winhttp.h>
 #include <iostream>
+#include <sstream>
+#include <cstring>
 #include <vector>
 #include <winternl.h>
 #include <iomanip>
@@ -90,4 +92,21 @@ std::vector<BYTE> DownloadBin(int SSL, LPCWSTR baseaddress, LPCWSTR filename)
     WinHttpCloseHandle(hSession);
 
     return buffer;
+}
+
+char * convertASCIItoHexLE(const char* ascii)
+{
+    printf("Little-Endian stack-awared representation of %s:", ascii);
+
+    int alen = std::strlen(ascii);
+    char * arr = new char[alen];
+
+    for (; alen > 0; alen--)
+    {
+        if (alen % 4 == 0) printf("\n[push] 0x");
+        arr[alen] = unsigned(ascii[alen - 1]);
+        printf("%x", arr[alen]);
+    }
+
+    return arr;
 }
