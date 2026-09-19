@@ -109,11 +109,15 @@ int main(int argc, const char* argv[])
 	const char* host = static_cast<const char*>(argv[1]);
 	DWORD port = static_cast<DWORD>(std::atoi(argv[2]));
 
+	if (argc == 4)
+	{
+		msf_checksum = static_cast<const char*>(argv[3]);
+	}
+
 	if (argc == 5)
 	{
 		msf_checksum = static_cast<const char*>(argv[3]);
 		dwAccessType = static_cast<DWORD>(std::atoi(argv[4]));
-		printf("dwAccessType = %d\n", dwAccessType);
 	}
 
 	std::string checksum = "/";
