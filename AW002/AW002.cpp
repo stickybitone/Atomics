@@ -102,7 +102,7 @@ int main(int argc, const char* argv[])
 
 	if (argc < 3)
 	{
-		printf(".exe <host> <port> [<msf checksum>] [<dwAccessType> (0=system proxy | 1=no system proxy)]\n");
+		printf(".exe <host> <port> [dwAccessType>] (0=system proxy | 1=no system proxy) [<msf checksum>]\n");
 		exit(1);
 	}
 
@@ -111,13 +111,13 @@ int main(int argc, const char* argv[])
 
 	if (argc == 4)
 	{
-		msf_checksum = static_cast<const char*>(argv[3]);
+		dwAccessType = static_cast<DWORD>(std::atoi(argv[3]));
 	}
 
 	if (argc == 5)
 	{
-		msf_checksum = static_cast<const char*>(argv[3]);
-		dwAccessType = static_cast<DWORD>(std::atoi(argv[4]));
+		dwAccessType = static_cast<DWORD>(std::atoi(argv[3]));
+		msf_checksum = static_cast<const char*>(argv[4]);
 	}
 
 	std::string checksum = "/";
